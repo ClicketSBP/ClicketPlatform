@@ -1,8 +1,23 @@
 # Clicket
 
-We are developing a platform and device to make paying parking easier and faster. You just have to press a button inside your car. This project is made as an assignment for the module Start-up (3rd year [NMCT][1]).
+We ontwikkelen een platform en device waarmee personen hun parkeerticket enorm snel kunnen betalen door één enkele druk op een knop.
 
-More information can be found on [http://www.clicket.be][2]
+Deze opdracht wordt gemaakt voor de module Start-up (3de jaar [NMCT][1]).
+
+Meer informatie is te vinden op [http://www.clicket.be][2].
+
+**Teamleden**
+
+Dit project wordt gerealiseerd door:
+* [Alexander Leplae][3]
+* [Jeffrey Descan][4]
+* [Niels Bril][5]
+* [Simon Gemmel][6]
+
 
 [1]: http://www.nmct.be
 [2]: http://www.clicket.be
+[3]: http://www.alexanderleplae.com
+[4]: http://www.jeffdesc.be
+[5]: http://www.nielsbril.be
+[6]: http://www.gemmel.be
