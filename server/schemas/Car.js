@@ -21,6 +21,16 @@ const carSchema = new mongoose.Schema({
         type: String,
         required: true,
 		trim: true
+    },
+	default_car: {
+		type: Boolean,
+		required: true,
+        default: false
+	},
+    user_id: {
+        type: Number,
+        required: true,
+        ref: 'User'
     }
 }, {
     _id: false,
