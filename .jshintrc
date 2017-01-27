@@ -1,14 +1,21 @@
 {
-	"esversion": 6,
-	"node": true,
-	"browser": true,
-	"undef": true,
-	"unused": false,
-	"predef": [
-		"MY_GLOBAL"
-	],
-	"validthis": true,
-	"laxcomma": true,
-	"laxbreak": true,
-	"module": true
+    "esnext": true,
+    "node": true,
+    "browser": true,
+    "undef": true,
+    "unused": false,
+    "predef": ["MY_GLOBAL"],
+    "globals": {
+        "describe": false,
+        "it": false,
+        "before": false,
+        "beforeEach": false,
+        "after": false,
+        "afterEach": false,
+		"jasmine": false
+    },
+    "validthis": true,
+    "laxcomma": true,
+    "laxbreak": true,
+    "module": true
 }

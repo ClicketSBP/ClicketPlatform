@@ -1,20 +1,13 @@
-const express = require('express'),
-	router = express.Router(),
-	jwt = require('express-jwt'),
-	config = require('../config/subporter'),
-	auth = jwt({
-		secret: config.jwt.secret,
-		userProperty: 'payload'
-	});
+const path = require('path'),
+    authenticate = require('./authenticate');
 
-let profileController = require('../controllers/profile');
-let authenticationController = require('../controllers/authentication');
+const routesController = (app) => {
+    app.use('/', authenticate);
 
-// profile
-router.get('/profile', profileController.profileRead);
+    app.get('*', (req, res) => {
+        let index = path.resolve(__dirname, '../views/index.html');
+        res.sendFile(index);
+    });
+};
 
-// authentication
-router.post('/register', authenticationController.register);
-router.post('/login', authenticationController.login);
-
-module.exports = router;
+module.exports.routes = routesController;

@@ -1,73 +1,95 @@
 #!/usr/bin/env node
 
+const http = require('http'),
+    https = require('https'),
+    path = require('path'),
+    fs = require('fs'),
+    passport = require('passport');
+
+/* Normalize a port into a number, string, or false */
+
+const normalizePort = (val) => {
+    let port = parseInt(val, 10);
+
+    if (isNaN(port)) {
+        return val;
+    }
+
+    if (port >= 0) {
+        return port;
+    }
+
+    return false;
+};
+
+/* Event listener for HTTP server "error" event */
+
+const onError = (error) => {
+    if (error.syscall !== 'listen') {
+        throw error;
+    }
+
+    let bind = typeof port === 'string' ?
+        "Pipe " + port :
+        "Port " + port;
+
+    switch (error.code) {
+        case 'EACCES':
+            console.error(bind + " requires elevated privileges");
+            process.exit(1);
+            break;
+        case 'EADDRINUSE':
+            console.error(bind + " is already in use");
+            process.exit(1);
+            break;
+        default:
+            throw error;
+    }
+};
+
+/* Event listener for HTTP server "listening" event */
+
+const onListening = () => {
+    let addr = server.address();
+    let host = addr.address;
+    let bind = typeof addr === 'string' ?
+        "pipe " + addr :
+        "port " + addr.port;
+    debug("Listening on " + bind);
+    console.log("Listening on localhost:" + port);
+};
+
+/* Initialize DB & authentication */
+
+require('../../config/db');
+require('../../config/passport')(passport);
+
 /* Module dependencies */
 
-let app = require('../app');
-let debug = require('debug')('clicketplatform:server');
-let http = require('http');
+let app = require('../app'),
+    debug = require('debug')('clicketbackend:server');
 
 /* Get port from environment and store in Express */
 
-let port = normalizePort(process.env.PORT || '1338');
+let port = normalizePort(process.env.PORT || '1337');
 app.set('port', port);
 
-/* Create HTTP server */
+/* Create HTTP(S) server */
 
-let server = http.createServer(app);
+let server;
+
+if (process.env.NODE_ENV === 'production') {
+    const options = {
+        key: fs.readFileSync(path.resolve(__dirname, '../../config/key.pem'), 'ascii'),
+        cert: fs.readFileSync(path.resolve(__dirname, '../../config/cert.pem'), 'ascii')
+    };
+    server = https.createServer(options, app);
+} else {
+    server = http.createServer(app);
+}
 
 /* Listen on provided port, on all network interfaces */
 
 server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
-
-/* Normalize a port into a number, string, or false */
-
-function normalizePort(val) {
-	let port = parseInt(val, 10);
-
-	if (isNaN(port)) {
-		return val;
-	}
-
-	if (port >= 0) {
-		return port;
-	}
-
-	return false;
-}
-
-/* Event listener for HTTP server "error" event */
-
-function onError(error) {
-	if (error.syscall !== 'listen') {
-		throw error;
-	}
-
-	let bind = typeof port === 'string' ?
-		'Pipe ' + port :
-		'Port ' + port;
-
-	switch (error.code) {
-		case 'EACCES':
-			console.error(bind + ' requires elevated privileges');
-			process.exit(1);
-			break;
-		case 'EADDRINUSE':
-			console.error(bind + ' is already in use');
-			process.exit(1);
-			break;
-		default:
-			throw error;
-	}
-}
-
-/* Event listener for HTTP server "listening" event */
-
-function onListening() {
-	let addr = server.address();
-	let bind = typeof addr === 'string' ?
-		'pipe ' + addr :
-		'port ' + addr.port;
-	debug('Listening on ' + bind);
-}

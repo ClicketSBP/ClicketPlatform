@@ -1,30 +1,28 @@
-const passport = require("passport"),
-	LocalStrategy = require("passport-local").Strategy,
-	mongoose = require("mongoose"),
-	User = mongoose.model("User");
+const mongoose = require('mongoose'),
+    config = require('./subporter.config'),
+    JwtStrategy = require('passport-jwt').Strategy,
+    ExtractJwt = require('passport-jwt').ExtractJwt,
+    User = mongoose.model('User');
 
-passport.use(new LocalStrategy({
-	usernameField: 'email'
-}, function (username, password, done) {
-	User.findOne({
-		email: username
-	}, function (err, user) {
-		if (err) {
-			return done(err);
-		}
+const passportConfig = (passport) => {
+    const options = {
+        jwtFromRequest: ExtractJwt.fromAuthHeader(),
+        secretOrKey: config.jwt_secret
+    };
 
-		if (!user) {
-			return done(null, false, {
-				message: "User not found"
-			});
-		}
+    passport.use(new JwtStrategy(options, (jwt, next) => {
+        User.findOne({
+            email: jwt.email
+        }, function(err, user) {
+            if (err) {
+                return next(err, false);
+            } else if (user) {
+                next(null, user);
+            } else {
+                next(null, false);
+            }
+        });
+    }));
+};
 
-		if (!user.validPassword(password)) {
-			return done(null, false, {
-				message: "Password is wrong"
-			});
-		}
-
-		return done(null, user);
-	});
-}));
+module.exports = passportConfig;
