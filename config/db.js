@@ -53,13 +53,7 @@ const mongoose = require('mongoose'),
     });
 
     /* Schemas and models */
-    require('../server/models/Addresses');
-    require('../server/models/Users');
-    require('../server/models/Countries');
-    require('../server/models/Sports');
-    require('../server/models/Competitions');
-    require('../server/models/Subscriptions');
-    require('../server/models/Games');
-    require('../server/models/Teams');
-    require('../server/models/Loans');
+    require('../server/models/Car');
+    require('../server/models/Session');
+    require('../server/models/User');
 })();

@@ -1,5 +1,5 @@
 const mongoose = require('mongoose'),
-    config = require('./subporter.config'),
+    config = require('./clicket.config'),
     JwtStrategy = require('passport-jwt').Strategy,
     ExtractJwt = require('passport-jwt').ExtractJwt,
     User = mongoose.model('User');

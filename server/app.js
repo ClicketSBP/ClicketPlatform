@@ -25,32 +25,23 @@ app.use(bodyParser.urlencoded({
 }));
 app.use(cookieParser());
 
-/* Favicon */
-
-app.use(favicon(path.join(__dirname, '../public', 'favicon.ico')));
-
 /* Static */
-
 app.use(express.static(path.join(__dirname, '../public')));
 
 app.use('/config', express.static(path.join(__dirname, '../config')));
 app.use('/lib', express.static(path.join(__dirname, '../node_modules')));
 
 /* Passport */
-
 app.use(passport.initialize());
 
 /* Initialize api */
-
 require('./api/index').api(app);
 
 /* Initialize routes */
-
 require('./routes/index').routes(app);
 
 /* Error handlers */
 /* 404 error handler */
-
 app.use((req, res, next) => {
     let err = new Error("Not found");
     err.status = 404;
@@ -58,7 +49,6 @@ app.use((req, res, next) => {
 });
 
 /* 401 error handler: unauthorized */
-
 app.use((err, req, res, next) => {
     if (err.name === 'UnauthorizedError') {
         res.status = 401;
@@ -69,7 +59,6 @@ app.use((err, req, res, next) => {
 });
 
 /* Development error handler: stacktrace */
-
 if (app.get('env') === 'development') {
     app.use((err, req, res, next) => {
         res.status(err.status || 500);
@@ -81,7 +70,6 @@ if (app.get('env') === 'development') {
 }
 
 /* Production error handler: no stacktrace */
-
 app.use((err, req, res, next) => {
     res.status(err.status || 500);
     res.render('error', {
@@ -91,7 +79,6 @@ app.use((err, req, res, next) => {
 });
 
 /* UncaughtException */
-
 process.on('uncaughtException', (err) => {
     if (app.get('env') === 'production') {
         logger.errorLogger.error("Error: ", err);
