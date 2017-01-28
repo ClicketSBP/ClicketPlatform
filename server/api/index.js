@@ -2,7 +2,8 @@ const users = require('./users'),
     cars = require('./cars'),
     sessions = require('./sessions'),
     zones = require('./zones'),
-    zoneDatas = require('./zoneDatas');
+    zoneDatas = require('./zoneDatas'),
+    twilio = require('./twilio');
 
 const apiController = (app) => {
     app.use('/api', users);
@@ -10,6 +11,7 @@ const apiController = (app) => {
     app.use('/api', sessions);
     app.use('/api', zones);
     app.use('/api', zoneDatas);
+    app.use('/api', twilio);
 
     app.all('/api/*', (req, res) => {
         res.json({

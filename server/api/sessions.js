@@ -6,7 +6,8 @@ const express = require('express'),
     loadUser = require('../middleware/loadUser'),
     bodyValidator = require('../helpers/bodyValidator'),
     zoneCalculator = require('../middleware/zoneCalculator'),
-    Session = require('../models/Session');
+    Session = require('../models/Session'),
+    twilio = require('../helpers/twilio');
 
 let router = express.Router();
 
