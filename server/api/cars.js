@@ -10,7 +10,7 @@ const express = require('express'),
 let router = express.Router();
 
 /* Get all cars by user_id via token */
-router.get("/cars/all", authenticate, (req, res) => {
+router.get("/cars/all", authenticate, loadUser, (req, res) => {
     if (req.granted) {
         Car.getCarsByUserId(req.user._id, (err, car) => {
             if (err) {
