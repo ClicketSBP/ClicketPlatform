@@ -40,6 +40,11 @@ const sessionSchema = new mongoose.Schema({
     stopped_on: {
         type: Date,
         required: false
+    },
+    zone_id: {
+        type: Number,
+        required: true,
+        ref: 'Zone'
     }
 }, {
     _id: false,

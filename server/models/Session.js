@@ -4,6 +4,17 @@ const mongoose = require('mongoose'),
 
 let Session = mongoose.model('Session', sessionSchema, 'Sessions');
 
+const populateSchema = [{
+    path: 'car_id',
+    model: 'Car'
+}, {
+    path: 'user_id',
+    model: 'User'
+}, {
+    path: 'zone_id',
+    model: 'Zone'
+}];
+
 /* Create */
 Session.addSession = (body, cb) => {
     let session = new Session(body);
@@ -37,6 +48,7 @@ Session.getSessionsByUserId = (userid, cb) => {
     Session.find({
             user_id: userid
         })
+        .populate(populateSchema)
         .sort({
             default_session: -1,
             name: 1
