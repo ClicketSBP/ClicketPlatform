@@ -2,7 +2,7 @@ const mongoose = require('mongoose'),
     mongooseHidden = require('mongoose-hidden')({
         defaultHidden: {
             __v: true,
-			created_at: true,
+            created_at: true,
             updated_at: true
         }
     }),
@@ -17,12 +17,26 @@ const sessionSchema = new mongoose.Schema({
     gps_coordinates: {
         type: String,
         required: true,
-		trim: true
+        trim: true
     },
     user_id: {
         type: Number,
         required: true,
-		ref: 'User'
+        ref: 'User'
+    },
+    started_on: {
+        type: Date,
+        required: true,
+        default: Date.now
+    },
+    active: {
+        type: Boolean,
+        required: true,
+        default: true
+    },
+    stopped_on: {
+        type: Date,
+        required: false
     }
 }, {
     _id: false,
