@@ -169,7 +169,7 @@ router.get("/users/username/:username", authenticate, (req, res) => {
 /* Update */
 router.put("/users", authenticate, (req, res) => {
     if (req.granted) {
-        if (Object.keys(req.body).length !== 10 || bodyValidator(req.body.email, req.body.firstname, req.body.name, req.body.password, req.body.phone, req.body.username, req.body.invoice_amount)) {
+        if (Object.keys(req.body).length !== 7 || bodyValidator(req.body.email, req.body.firstname, req.body.name, req.body.password, req.body.phone, req.body.username, req.body.invoice_amount)) {
             res.json({
                 info: "Please supply all required fields",
                 success: false
@@ -216,7 +216,7 @@ router.put("/users", authenticate, (req, res) => {
 
 router.put("/users/:id", authenticate, admin, (req, res) => {
     if (req.granted) {
-        if (Object.keys(req.body).length !== 10 || bodyValidator(req.body.email, req.body.firstname, req.body.name, req.body.password, req.body.phone, req.body.username, req.body.invoice_amount)) {
+        if (Object.keys(req.body).length !== 7 || bodyValidator(req.body.email, req.body.firstname, req.body.name, req.body.password, req.body.phone, req.body.username, req.body.invoice_amount)) {
             res.json({
                 info: "Please supply all required fields",
                 success: false
@@ -240,54 +240,6 @@ router.put("/users/:id", authenticate, admin, (req, res) => {
                         } else {
                             res.json({
                                 info: "User updated successfully",
-                                success: true
-                            });
-                        }
-                    });
-                } else {
-                    res.json({
-                        info: "User not found",
-                        success: false,
-                    });
-                }
-            });
-        }
-    } else {
-        res.status(403);
-        res.json({
-            info: "Unauthorized",
-            success: false
-        });
-    }
-});
-
-/* Update username */
-router.post("/users/update/username", authenticate, (req, res) => {
-    if (req.granted) {
-        if (Object.keys(req.body).length !== 1 || bodyValidator(req.body.username)) {
-            res.json({
-                info: "Please supply a username",
-                success: false
-            });
-        } else {
-            User.getUserByEmail(req.jwtUser.email, (err, user) => {
-                if (err) {
-                    res.json({
-                        info: "Error during reading user",
-                        success: false,
-                        error: err.errmsg
-                    });
-                } else if (user) {
-                    User.updateCrucial(user, req.body, (err) => {
-                        if (err) {
-                            res.json({
-                                info: "Error during updating username",
-                                success: false,
-                                error: err.errmsg
-                            });
-                        } else {
-                            res.json({
-                                info: "Username updated successfully",
                                 success: true
                             });
                         }
