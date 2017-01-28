@@ -82,6 +82,7 @@ Session.getSessionsByCarId = (carId, cb) => {
 /* Read (one session) */
 Session.getSessionById = (id, cb) => {
     Session.findById(id)
+        .populate(populateSchema)
         .exec((err, docs) => {
             if (err) {
                 cb(err, null);

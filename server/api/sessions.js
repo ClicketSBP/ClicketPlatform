@@ -42,6 +42,61 @@ router.get("/sessions/all", authenticate, loadUser, (req, res) => {
     }
 });
 
+/* Check if session is active */
+router.post("/session/active", authenticate, loadUser, (req, res) => {
+    if (req.granted) {
+        if (Object.keys(req.body).length !== 1 || bodyValidator(req.body.id)) {
+            res.json({
+                info: "Please supply all required fields",
+                success: false
+            });
+        } else {
+            Session.getSessionById(req.body.id, (err, session) => {
+                if (err) {
+                    res.json({
+                        info: "Error during retrieving sessions",
+                        success: false,
+                        error: err.errmsg
+                    });
+                } else if (session) {
+                    if (session.user_id._id == req.user._id) {
+                        if (session.active) {
+                            res.json({
+                                info: "Session is active",
+                                success: true,
+                                data: session
+                            });
+                        } else if (session.active === false) {
+                            res.json({
+                                info: "Session is not active anymore",
+                                success: false,
+                                data: session
+                            });
+                        }
+                    } else {
+                        res.status(403);
+                        res.json({
+                            info: "Unauthorized to check active state",
+                            success: false
+                        });
+                    }
+                } else {
+                    res.json({
+                        info: "Session not found",
+                        success: false
+                    });
+                }
+            });
+        }
+    } else {
+        res.status(403);
+        res.json({
+            info: "Unauthorized",
+            success: false
+        });
+    }
+});
+
 /* Get session by id - ADMIN ONLY */
 router.get("/session/id/:id", authenticate, admin, (req, res) => {
     if (req.granted) {
