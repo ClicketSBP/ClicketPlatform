@@ -7,7 +7,7 @@ let Car = mongoose.model('Car', carSchema, 'Cars');
 /* Create */
 Car.addCar = (body, cb) => {
     let car = new Car(body);
-    car.save((err) => {
+    car.save((err, docs) => {
         if (err) {
             cb(err);
         } else {

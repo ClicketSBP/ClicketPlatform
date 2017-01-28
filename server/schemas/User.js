@@ -46,16 +46,15 @@ const userSchema = new mongoose.Schema({
         type: String,
         match: phoneRegExp
     },
-    /*username: {
-        type: String,
-        unique: true,
-        required: true,
-        match: usernameRegExp
-    },*/
     invoice_amount: {
         type: Number,
         required: true,
         default: 0
+    },
+    admin: {
+        type: Boolean,
+        required: true,
+        default: false
     }
 }, {
     _id: false,

@@ -12,7 +12,7 @@ let router = express.Router();
 
 /* Register */
 router.post("/register", (req, res) => {
-    if (Object.keys(req.body).length !== 4 || bodyValidator(req.body.email, req.body.firstname, req.body.name, req.body.password)) {
+    if (Object.keys(req.body).length !== 5 || bodyValidator(req.body.email, req.body.firstname, req.body.name, req.body.password, req.body.phone)) {
         res.json({
             info: "Please supply all required fields",
             success: false
@@ -35,7 +35,8 @@ router.post("/register", (req, res) => {
                     info: "User created successfully",
                     success: true,
                     token: token,
-                    expires: moment().add(7, 'days').format('dddd, MMMM Do YYYY, h:mm:ss')
+                    expires: moment().add(7, 'days').format('dddd, MMMM Do YYYY, h:mm:ss'),
+                    email: user.email
                 });
             } else {
                 res.json({

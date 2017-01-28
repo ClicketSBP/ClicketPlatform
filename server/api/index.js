@@ -1,12 +1,12 @@
-const users = require('./users')
-/*cars = require('./cars'),
-sessions = require('./sessions')*/
+const users = require('./users'),
+    cars = require('./cars')
+/*sessions = require('./sessions')*/
 ;
 
 const apiController = (app) => {
     app.use('/api', users);
-    /*app.use('/api', cars);
-    app.use('/api', sessions);*/
+    app.use('/api', cars);
+    //app.use('/api', sessions);
 
     app.all('/api/*', (req, res) => {
         res.json({
