@@ -26,7 +26,7 @@ app.use(bodyParser.urlencoded({
 app.use(cookieParser());
 
 /* Static */
-app.use(express.static(path.join(__dirname, '../public')));
+//app.use(express.static(path.join(__dirname, '../public')));
 
 app.use('/config', express.static(path.join(__dirname, '../config')));
 app.use('/lib', express.static(path.join(__dirname, '../node_modules')));

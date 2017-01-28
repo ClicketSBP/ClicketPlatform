@@ -78,15 +78,15 @@ app.set('port', port);
 
 let server;
 
-if (process.env.NODE_ENV === 'production') {
+/*if (process.env.NODE_ENV === 'production') {
     const options = {
         key: fs.readFileSync(path.resolve(__dirname, '../../config/key.pem'), 'ascii'),
         cert: fs.readFileSync(path.resolve(__dirname, '../../config/cert.pem'), 'ascii')
     };
     server = https.createServer(options, app);
-} else {
-    server = http.createServer(app);
-}
+} else {*/
+server = http.createServer(app);
+//}
 
 /* Listen on provided port, on all network interfaces */
 

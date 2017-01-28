@@ -14,10 +14,13 @@ const sessionSchema = new mongoose.Schema({
         required: true,
         ref: 'Car'
     },
-    gps_coordinates: {
-        type: String,
-        required: true,
-        trim: true
+    lat: {
+        type: Number,
+        required: true
+    },
+    lng: {
+        type: Number,
+        required: true
     },
     user_id: {
         type: Number,
