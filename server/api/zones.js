@@ -145,13 +145,13 @@ router.post("/zone", authenticate, admin, (req, res) => {
 /* Update */
 router.put("/zone", authenticate, admin, (req, res) => {
     if (req.granted) {
-        if (Object.keys(req.body).length !== 2 || bodyValidator(req.body.name, req.body.price)) {
+        if (Object.keys(req.body).length !== 3 || bodyValidator(req.body.id, req.body.name, req.body.price)) {
             res.json({
                 info: "Please supply all required fields",
                 success: false
             });
         } else {
-            Zone.getZoneByStreetCity(req.body.street, req.body.city, (err, zone) => {
+            Zone.getZoneById(req.body.id, (err, zone) => {
                 if (err) {
                     res.json({
                         info: "Error during reading zone",
