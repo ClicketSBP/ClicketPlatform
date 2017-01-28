@@ -1,5 +1,4 @@
-const mongoose = require('mongoose'),
-    NodeGeocoder = require('node-geocoder'),
+const NodeGeocoder = require('node-geocoder'),
     config = require('../../config/clicket.config.js'),
     zoneData = require('../models/ZoneData');
 
