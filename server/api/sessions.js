@@ -5,6 +5,7 @@ const express = require('express'),
     admin = require('../middleware/admin'),
     loadUser = require('../middleware/loadUser'),
     bodyValidator = require('../helpers/bodyValidator'),
+    zoneCalculator = require('../middleware/zoneCalculator'),
     Session = require('../models/Session');
 
 let router = express.Router();
@@ -74,7 +75,7 @@ router.get("/session/id/:id", authenticate, admin, (req, res) => {
 });
 
 /* Create session */
-router.post("/session", authenticate, loadUser, (req, res) => {
+router.post("/session", authenticate, loadUser, zoneCalculator, (req, res) => {
     if (Object.keys(req.body).length !== 4 || bodyValidator(req.body.car_id, req.body.lat, req.body.lng, req.body.user_id)) {
         res.json({
             info: "Please supply all required fields",
@@ -82,6 +83,7 @@ router.post("/session", authenticate, loadUser, (req, res) => {
         });
     } else {
         if (req.user._id == req.body.user_id) {
+            req.body.zone_id = req.zone._id;
             Session.addSession(req.body, (err, session) => {
                 if (err) {
                     res.json({
