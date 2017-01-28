@@ -46,12 +46,12 @@ const userSchema = new mongoose.Schema({
         type: String,
         match: phoneRegExp
     },
-    username: {
+    /*username: {
         type: String,
         unique: true,
         required: true,
         match: usernameRegExp
-    },
+    },*/
     invoice_amount: {
         type: Number,
         required: true,

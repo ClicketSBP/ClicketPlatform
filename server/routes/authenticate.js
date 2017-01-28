@@ -12,7 +12,7 @@ let router = express.Router();
 
 /* Register */
 router.post("/register", (req, res) => {
-    if (Object.keys(req.body).length !== 5 || bodyValidator(req.body.email, req.body.firstname, req.body.name, req.body.password, req.body.username)) {
+    if (Object.keys(req.body).length !== 4 || bodyValidator(req.body.email, req.body.firstname, req.body.name, req.body.password)) {
         res.json({
             info: "Please supply all required fields",
             success: false

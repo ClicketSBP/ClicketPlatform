@@ -3,13 +3,9 @@ const express = require('express'),
     jwt = require('jwt-simple'),
     authenticate = require('../middleware/authenticate'),
     admin = require('../middleware/admin'),
-    formParser = require('../middleware/formParser'),
-    imageSaver = require('../middleware/imageSaver'),
     loadUser = require('../middleware/loadUser'),
     bodyValidator = require('../helpers/bodyValidator'),
-    cache = require('../helpers/caching'),
-    User = require('../models/Users'),
-    Address = require('../models/Addresses');
+    User = require('../models/User');
 
 let router = express.Router();
 
@@ -171,9 +167,9 @@ router.get("/users/username/:username", authenticate, (req, res) => {
 });
 
 /* Update */
-router.put("/users", authenticate, formParser, imageSaver, (req, res) => {
+router.put("/users", authenticate, (req, res) => {
     if (req.granted) {
-        if (Object.keys(req.body).length !== 10 || bodyValidator(req.body.address, req.body.avatar, req.body.city, req.body.country, req.body.date_of_birth, req.body.national_registry_number, req.body.number, req.body.phone, req.body.postal, req.body.street)) {
+        if (Object.keys(req.body).length !== 10 || bodyValidator(req.body.email, req.body.firstname, req.body.joined_on, req.body.name, req.body.password, req.body.phone, req.body.username, req.body.invoice_amount)) {
             res.json({
                 info: "Please supply all required fields",
                 success: false
@@ -187,7 +183,7 @@ router.put("/users", authenticate, formParser, imageSaver, (req, res) => {
                         error: err.errmsg
                     });
                 } else if (user) {
-                    Address.addOrUpdateAddress(req.body.address, req.body, (err, id) => {
+                    /*Address.addOrUpdateAddress(req.body.address, req.body, (err, id) => {
                         if (err || !id) {
                             res.json({
                                 info: "Error during creating/updating address",
@@ -211,7 +207,7 @@ router.put("/users", authenticate, formParser, imageSaver, (req, res) => {
                                 }
                             });
                         }
-                    });
+                    });*/
                 } else {
                     res.json({
                         info: "User not found",
@@ -229,9 +225,9 @@ router.put("/users", authenticate, formParser, imageSaver, (req, res) => {
     }
 });
 
-router.put("/users/:id", authenticate, admin, formParser, imageSaver, (req, res) => {
+router.put("/users/:id", authenticate, admin, (req, res) => {
     if (req.granted) {
-        if (Object.keys(req.body).length !== 10 || bodyValidator(req.body.address, req.body.avatar, req.body.city, req.body.country, req.body.date_of_birth, req.body.national_registry_number, req.body.number, req.body.phone, req.body.postal, req.body.street)) {
+        if (Object.keys(req.body).length !== 10 || bodyValidator(req.body.email, req.body.firstname, req.body.joined_on, req.body.name, req.body.password, req.body.phone, req.body.username, req.body.invoice_amount)) {
             res.json({
                 info: "Please supply all required fields",
                 success: false
@@ -245,7 +241,7 @@ router.put("/users/:id", authenticate, admin, formParser, imageSaver, (req, res)
                         error: err.errmsg
                     });
                 } else if (user) {
-                    Address.addOrUpdateAddress(req.body.address, req.body, (err, id) => {
+                    /*Address.addOrUpdateAddress(req.body.address, req.body, (err, id) => {
                         if (err || !id) {
                             res.json({
                                 info: "Error during creating/updating address",
@@ -269,7 +265,7 @@ router.put("/users/:id", authenticate, admin, formParser, imageSaver, (req, res)
                                 }
                             });
                         }
-                    });
+                    });*/
                 } else {
                     res.json({
                         info: "User not found",
@@ -352,16 +348,16 @@ router.post("/users/update/email", authenticate, (req, res) => {
                         error: err.errmsg
                     });
                 } else if (user) {
-                    User.updateCrucial(user, req.body, (err) => {
+                    User.updateUser(user, req.body, (err) => {
                         if (err) {
                             res.json({
-                                info: "Error during updating email",
+                                info: "Error during updating user",
                                 success: false,
                                 error: err.errmsg
                             });
                         } else {
                             res.json({
-                                info: "Email updated successfully",
+                                info: "User updated successfully",
                                 success: true
                             });
                         }
