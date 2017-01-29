@@ -169,7 +169,7 @@ router.get("/users/username/:username", authenticate, (req, res) => {
 /* Update */
 router.put("/users", authenticate, (req, res) => {
     if (req.granted) {
-        if (Object.keys(req.body).length !== 6 || bodyValidator(req.body.email, req.body.firstname, req.body.name, req.body.phone, req.body.username, req.body.invoice_amount)) {
+        if (Object.keys(req.body).length !== 5 || bodyValidator(req.body.email, req.body.firstname, req.body.name, req.body.phone, req.body.invoice_amount)) {
             res.json({
                 info: "Please supply all required fields",
                 success: false
@@ -216,7 +216,7 @@ router.put("/users", authenticate, (req, res) => {
 
 router.put("/users/:id", authenticate, admin, (req, res) => {
     if (req.granted) {
-        if (Object.keys(req.body).length !== 6 || bodyValidator(req.body.email, req.body.firstname, req.body.name, req.body.phone, req.body.username, req.body.invoice_amount)) {
+        if (Object.keys(req.body).length !== 5 || bodyValidator(req.body.email, req.body.firstname, req.body.name, req.body.phone, req.body.invoice_amount)) {
             res.json({
                 info: "Please supply all required fields",
                 success: false
