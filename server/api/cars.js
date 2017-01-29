@@ -84,7 +84,8 @@ router.post("/car", authenticate, loadUser, (req, res) => {
         } else {
             req.body.user_id = req.user._id;
 
-            if (req.body.default_car) {
+            //req.body.default_car = parseBoolean(req.body.default_car);
+            if (req.body.default_car === 'true' || req.body.default_car === '1') {
                 Car.setAllCarsDefault(req.user._id, false, (err, cars) => {
                     if (err) {
                         res.json({
@@ -93,7 +94,7 @@ router.post("/car", authenticate, loadUser, (req, res) => {
                             error: err.errmsg
                         });
                     }
-                })
+                });
             }
             Car.addCar(req.body, (err, car) => {
                 if (err) {
@@ -119,10 +120,42 @@ router.post("/car", authenticate, loadUser, (req, res) => {
     }
 });
 
+/* Get default car by user car */
+router.get("/car/default", authenticate, loadUser, (req, res) => {
+    if (req.granted) {
+        Car.getDefaultCarByUserId(req.user._id, (err, car) => {
+            if (err) {
+                res.json({
+                    info: "Error during reading car",
+                    success: false,
+                    error: err.errmsg
+                });
+            } else if (car) {
+                res.json({
+                    info: "Default car found",
+                    success: true,
+                    data: car
+                });
+            } else {
+                res.json({
+                    info: "No default car found",
+                    success: false
+                });
+            }
+        });
+    } else {
+        res.status(403);
+        res.json({
+            info: "Unauthorized",
+            success: false
+        });
+    }
+});
+
 /* Update */
 router.put("/car", authenticate, loadUser, (req, res) => {
     if (req.granted) {
-        if (Object.keys(req.body).length !== 5 || bodyValidator(req.body.id, req.body.license_plate, req.body.name, req.body.default_car, req.body.user_id)) {
+        if (Object.keys(req.body).length !== 4 || bodyValidator(req.body.id, req.body.license_plate, req.body.name, req.body.default_car)) {
             res.json({
                 info: "Please supply all required fields",
                 success: false
@@ -137,6 +170,21 @@ router.put("/car", authenticate, loadUser, (req, res) => {
                     });
                 } else if (car) {
                     if (car.user_id == req.user._id) {
+                        req.body.user_id = req.user._id;
+
+                        //req.body.default_car = parseBoolean(req.body.default_car);
+                        if (req.body.default_car === 'true' || req.body.default_car === '1') {
+                            Car.setAllCarsDefault(req.user._id, false, (err, cars) => {
+                                if (err) {
+                                    res.json({
+                                        info: "Error during resetting default cars",
+                                        success: false,
+                                        error: err.errmsg
+                                    });
+                                }
+                            });
+                        }
+
                         Car.updateCar(car, req.body, (err) => {
                             if (err) {
                                 res.json({
@@ -223,73 +271,16 @@ router.put("/car/:id", authenticate, admin, (req, res) => {
     }
 });
 
-/* Update carname */
-router.post("/car/update/name", authenticate, loadUser, (req, res) => {
-    if (req.granted) {
-        if (Object.keys(req.body).length !== 2 || bodyValidator(req.body.name, req.body.id)) {
-            res.json({
-                info: "Please supply all valid fields",
-                success: false
-            });
-        } else {
-            Car.getCarById(req.body.id, (err, car) => {
-                if (err) {
-                    res.json({
-                        info: "Error during reading car",
-                        success: false,
-                        error: err.errmsg
-                    });
-                } else if (car) {
-                    if (req.user._id == car.user_id) {
-                        car.name = req.body.name;
-                        Car.updateCar(car, req.body, (err) => {
-                            if (err) {
-                                res.json({
-                                    info: "Error during updating car name",
-                                    success: false,
-                                    error: err.errmsg
-                                });
-                            } else {
-                                res.json({
-                                    info: "Car name updated successfully",
-                                    success: true
-                                });
-                            }
-                        });
-                    } else {
-                        res.status(403);
-                        res.json({
-                            info: "Unauthorized to change car name",
-                            success: false
-                        });
-                    }
-                } else {
-                    res.json({
-                        info: "Car not found",
-                        success: false
-                    });
-                }
-            });
-        }
-    } else {
-        res.status(403);
-        res.json({
-            info: "Unauthorized",
-            success: false
-        });
-    }
-});
-
 /* Delete */
-router.delete("/car", authenticate, loadUser, (req, res) => {
+router.delete("/car/:id", authenticate, loadUser, (req, res) => {
     if (req.granted) {
-        if (Object.keys(req.body).length !== 1 || bodyValidator(req.body.id)) {
+        if (Object.keys(req.params).length !== 1 || bodyValidator(req.params.id)) {
             res.json({
                 info: "Please supply a car id",
                 success: false
             });
         } else {
-            Car.getCarById(req.body.id, (err, car) => {
+            Car.getCarById(req.params.id, (err, car) => {
                 if (err) {
                     res.json({
                         info: "Car not found",
@@ -297,7 +288,7 @@ router.delete("/car", authenticate, loadUser, (req, res) => {
                     });
                 } else {
                     if (car.user_id == req.user._id) {
-                        Car.deleteCar(req.body.id, (err) => {
+                        Car.deleteCar(req.params.id, (err) => {
                             if (err) {
                                 res.json({
                                     info: "Error during deleting car",
@@ -321,32 +312,6 @@ router.delete("/car", authenticate, loadUser, (req, res) => {
                 }
             });
         }
-    } else {
-        res.status(403);
-        res.json({
-            info: "Unauthorized",
-            success: false
-        });
-    }
-});
-
-/* Delete car - ADMIN ONLY */
-router.delete("/car/:id", authenticate, admin, (req, res) => {
-    if (req.granted) {
-        Car.deleteCar(req.params.id, (err) => {
-            if (err) {
-                res.json({
-                    info: "Error during deleting car",
-                    success: false,
-                    error: err.errmsg
-                });
-            } else {
-                res.json({
-                    info: "Car deleted succesfully",
-                    success: true
-                });
-            }
-        });
     } else {
         res.status(403);
         res.json({
