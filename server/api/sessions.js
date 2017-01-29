@@ -280,6 +280,7 @@ router.post("/session", authenticate, loadUser, zoneCalculator, (req, res) => {
         } else {
             req.body.zone_id = req.zone._id;
             req.body.user_id = req.user._id;
+
             Session.addSession(req.body, (err, session) => {
                 if (err) {
                     res.json({

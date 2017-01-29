@@ -76,29 +76,37 @@ router.get("/zone/id/:id", authenticate, admin, (req, res) => {
 
 /* Create zone - ADMIN ONLY */
 router.post("/zone", authenticate, admin, (req, res) => {
-    if (Object.keys(req.body).length !== 2 || bodyValidator(req.body.name, req.body.price)) {
-        res.json({
-            info: "Please supply all required fields",
-            success: false
-        });
+    if (req.granted) {
+        if (Object.keys(req.body).length !== 2 || bodyValidator(req.body.name, req.body.price)) {
+            res.json({
+                info: "Please supply all required fields",
+                success: false
+            });
+        } else {
+            Zone.addZone(req.body, (err, zone) => {
+                if (err) {
+                    res.json({
+                        info: "Error during creating zone: name could be already in use or there might be some validation errors",
+                        success: false,
+                        error: err.errmsg
+                    });
+                } else {
+                    res.json({
+                        info: "Zone created successfully",
+                        data: {
+                            name: req.body.name,
+                            price: req.body.price
+                        },
+                        success: true
+                    });
+                }
+            });
+        }
     } else {
-        Zone.addZone(req.body, (err, zone) => {
-            if (err) {
-                res.json({
-                    info: "Error during creating zone: name could be already in use or there might be some validation errors",
-                    success: false,
-                    error: err.errmsg
-                });
-            } else {
-                res.json({
-                    info: "Zone created successfully",
-                    data: {
-                        name: req.body.name,
-                        price: req.body.price
-                    },
-                    success: true
-                });
-            }
+        res.status(403);
+        res.json({
+            info: "Unauthorized",
+            success: false
         });
     }
 });

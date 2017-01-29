@@ -113,7 +113,7 @@ router.get("/zone/data/id/:id", authenticate, admin, (req, res) => {
 });
 
 /* Create zone data - ADMIN ONLY */
-router.post("/zone/data", authenticate, admin, (req, res) => {
+router.post("/zone/create/data", authenticate, admin, (req, res) => {
     if (Object.keys(req.body).length !== 3 || bodyValidator(req.body.zone_id, req.body.street, req.body.city)) {
         res.json({
             info: "Please supply all required fields",
