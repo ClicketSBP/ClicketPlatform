@@ -46,7 +46,7 @@ router.get("/sessions/all", authenticate, loadUser, (req, res) => {
 });
 
 /* Get recent sessions through user_id via token */
-router.post("/sessions/all", authenticate, loadUser, (req, res) => {
+router.post("/sessions/recent", authenticate, loadUser, (req, res) => {
     if (req.granted) {
         if (Object.keys(req.body).length !== 1 || bodyValidator(req.body.amount)) {
             res.json({
