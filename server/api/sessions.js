@@ -45,6 +45,45 @@ router.get("/sessions/all", authenticate, loadUser, (req, res) => {
     }
 });
 
+/* Get recent sessions through user_id via token */
+router.post("/sessions/all", authenticate, loadUser, (req, res) => {
+    if (req.granted) {
+        if (Object.keys(req.body).length !== 1 || bodyValidator(req.body.amount)) {
+            res.json({
+                info: "Please supply all required fields",
+                success: false
+            });
+        } else {
+            Session.getRecentSessionsByUserId(req.user._id, req.body.amount, (err, sessions) => {
+                if (err) {
+                    res.json({
+                        info: "Error during retrieving recent sessions",
+                        success: false,
+                        error: err.errmsg
+                    });
+                } else if (sessions) {
+                    res.json({
+                        info: "Successfully retrieved recent sessions",
+                        success: true,
+                        data: sessions
+                    });
+                } else {
+                    res.json({
+                        info: "Recent sessions not found",
+                        success: false
+                    });
+                }
+            });
+        }
+    } else {
+        res.status(403);
+        res.json({
+            info: "Unauthorized",
+            success: false
+        });
+    }
+});
+
 /* Check if session is active */
 router.post("/session/check/active", authenticate, loadUser, (req, res) => {
     if (req.granted) {

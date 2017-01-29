@@ -31,8 +31,8 @@ Session.addSession = (body, cb) => {
 Session.getSessions = (cb) => {
     Session.find({})
         .sort({
-            default_session: -1,
-            name: 1
+            active: -1,
+            started_on: -1
         })
         .exec((err, docs) => {
             if (err) {
@@ -50,9 +50,29 @@ Session.getSessionsByUserId = (userid, cb) => {
         })
         .populate(populateSchema)
         .sort({
-            default_session: -1,
-            name: 1
+            active: -1,
+            started_on: -1
         })
+        .exec((err, docs) => {
+            if (err) {
+                cb(err, null);
+            } else {
+                cb(null, docs);
+            }
+        });
+};
+
+/* Read (get recent sessions) */
+Session.getRecentSessionsByUserId = (userid, amount, cb) => {
+    Session.find({
+            user_id: userid
+        })
+        .populate(populateSchema)
+        .sort({
+            active: -1,
+            started_on: -1
+        })
+        .limit(amount)
         .exec((err, docs) => {
             if (err) {
                 cb(err, null);
@@ -66,9 +86,6 @@ Session.getSessionsByUserId = (userid, cb) => {
 Session.getSessionsByCarId = (carId, cb) => {
     Session.find({
             car_id: carId
-        })
-        .sort({
-            car_id: 1
         })
         .exec((err, docs) => {
             if (err) {
