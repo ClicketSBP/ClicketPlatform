@@ -174,6 +174,31 @@ User.updateUser = (user, body, cb) => {
     });
 };
 
+/* Add invoice amount */
+User.addInvoiceAmount = (user, invoiceAmount, cb) => {
+    //_.merge(user, body);
+    user.invoice_amount += invoiceAmount;
+    user.save((err) => {
+        if (err) {
+            cb(err);
+        } else {
+            cb(null);
+        }
+    });
+};
+
+/* Update invoice amount */
+    //_.merge(user, body);
+    user.invoice_amount = invoiceAmount;
+    user.save((err) => {
+        if (err) {
+            cb(err);
+        } else {
+            cb(null);
+        }
+    });
+};
+
 /* Delete */
 User.deleteUser = (id, cb) => {
     User.findById(id, (err, docs) => {
