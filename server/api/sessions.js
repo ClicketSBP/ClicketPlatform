@@ -271,14 +271,15 @@ router.get("/sessions/price/all", authenticate, loadUser, (req, res) => {
 
 /* Create session */
 router.post("/session", authenticate, loadUser, zoneCalculator, (req, res) => {
-    if (Object.keys(req.body).length !== 4 || bodyValidator(req.body.car_id, req.body.lat, req.body.lng, req.body.user_id)) {
-        res.json({
-            info: "Please supply all required fields",
-            success: false
-        });
-    } else {
-        if (req.user._id == req.body.user_id) {
+    if (req.granted) {
+        if (Object.keys(req.body).length !== 3 || bodyValidator(req.body.car_id, req.body.lat, req.body.lng)) {
+            res.json({
+                info: "Please supply all required fields",
+                success: false
+            });
+        } else {
             req.body.zone_id = req.zone._id;
+            req.body.user_id = req.user._id;
             Session.addSession(req.body, (err, session) => {
                 if (err) {
                     res.json({
@@ -293,20 +294,20 @@ router.post("/session", authenticate, loadUser, zoneCalculator, (req, res) => {
                     });
                 }
             });
-        } else {
-            res.status(403);
-            res.json({
-                info: "Unauthorized",
-                success: false
-            });
         }
+    } else {
+        res.status(403);
+        res.json({
+            info: "Unauthorized",
+            success: false
+        });
     }
 });
 
 /* Update */
 router.put("/session", authenticate, loadUser, (req, res) => {
     if (req.granted) {
-        if (Object.keys(req.body).length !== 5 || bodyValidator(req.body.id, req.body.car_id, req.body.lat, req.body.lng, req.body.user_id)) {
+        if (Object.keys(req.body).length !== 4 || bodyValidator(req.body.id, req.body.car_id, req.body.lat, req.body.lng)) {
             res.json({
                 info: "Please supply all required fields",
                 success: false
@@ -321,6 +322,7 @@ router.put("/session", authenticate, loadUser, (req, res) => {
                     });
                 } else if (session) {
                     if (session.user_id._id == req.user._id) {
+                        req.body.user_id = req.user._id;
                         Session.updateSession(session, req.body, (err) => {
                             if (err) {
                                 res.json({
@@ -342,54 +344,6 @@ router.put("/session", authenticate, loadUser, (req, res) => {
                             success: false
                         });
                     }
-                } else {
-                    res.json({
-                        info: "Session not found",
-                        success: false,
-                    });
-                }
-            });
-        }
-    } else {
-        res.status(403);
-        res.json({
-            info: "Unauthorized",
-            success: false
-        });
-    }
-});
-
-/* Update session - AMDIN ONLY */
-router.put("/session/:id", authenticate, admin, (req, res) => {
-    if (req.granted) {
-        if (Object.keys(req.body).length !== 6 || bodyValidator(req.body.car_id, req.body.lat, req.body.lng, req.body.user_id, req.body.active, req.body.stopped_on)) {
-            res.json({
-                info: "Please supply all required fields",
-                success: false
-            });
-        } else {
-            Session.getSessionById(req.params.id, (err, session) => {
-                if (err) {
-                    res.json({
-                        info: "Error during reading session",
-                        success: false,
-                        error: err.errmsg
-                    });
-                } else if (session) {
-                    Session.updateSession(session, req.body, (err) => {
-                        if (err) {
-                            res.json({
-                                info: "Error during updating session",
-                                success: false,
-                                error: err.errmsg
-                            });
-                        } else {
-                            res.json({
-                                info: "Session updated successfully",
-                                success: true
-                            });
-                        }
-                    });
                 } else {
                     res.json({
                         info: "Session not found",
