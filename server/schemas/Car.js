@@ -8,7 +8,7 @@ const mongoose = require('mongoose'),
     }),
     autoIncrement = require('mongoose-increment');
 
-const regExpLicPlate = /([1TO]{1}-)?[A-Z]{3}-[0-9]{3}/;
+const regExpLicPlate = /([1TO]{1}-)?[A-Z0-9]{3}-[A-Z0-9]{3}/;
 
 const carSchema = new mongoose.Schema({
     license_plate: {
