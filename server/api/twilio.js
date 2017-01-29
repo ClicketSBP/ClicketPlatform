@@ -10,27 +10,35 @@ const express = require('express'),
 let router = express.Router();
 
 /* Send message */
-router.post("/twilio/send", (req, res) => {
-    if (Object.keys(req.body).length !== 2 || bodyValidator(req.body.to, req.body.msg)) {
-        res.json({
-            info: "Please supply all required fields",
-            success: false
-        });
+router.post("/twilio/send", authenticate, (req, res) => {
+    if (req.granted) {
+        if (Object.keys(req.body).length !== 2 || bodyValidator(req.body.to, req.body.msg)) {
+            res.json({
+                info: "Please supply all required fields",
+                success: false
+            });
+        } else {
+            twilio.sendSms(req.body.to, req.body.msg, (err, data) => {
+                if (err) {
+                    res.json({
+                        info: "Message not sent",
+                        success: false,
+                        error: err
+                    });
+                } else {
+                    res.json({
+                        info: "Message sent to: " + req.body.to,
+                        success: true,
+                        data: data
+                    });
+                }
+            });
+        }
     } else {
-        twilio.sendSms(req.body.to, req.body.msg, (err, data) => {
-            if (err) {
-                res.json({
-                    info: "Message not sent",
-                    success: false,
-                    error: err
-                });
-            } else {
-                res.json({
-                    info: "Message sent to: " + req.body.to,
-                    success: true,
-                    data: data
-                });
-            }
+        res.status(403);
+        res.json({
+            info: "Unauthorized",
+            success: false
         });
     }
 });
