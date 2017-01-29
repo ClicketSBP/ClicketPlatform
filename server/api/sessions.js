@@ -7,7 +7,7 @@ const express = require('express'),
     bodyValidator = require('../helpers/bodyValidator'),
     zoneCalculator = require('../middleware/zoneCalculator'),
     Session = require('../models/Session'),
-    twilio = require('../helpers/twilio');
+    sessionPrice = require('../helpers/sessionPrice');
 
 let router = express.Router();
 
@@ -128,6 +128,49 @@ router.get("/session/id/:id", authenticate, admin, (req, res) => {
             success: false
         });
     }
+});
+
+/* Calculate price of session */
+router.get("/session/price/:id", authenticate, loadUser, (req, res) => {
+    if (req.granted) {
+        Session.getSessionById(req.params.id, (err, session) => {
+            if (err) {
+                res.json({
+                    info: "Error during reading session",
+                    success: false,
+                    error: err.errmsg
+                });
+            } else if (session) {
+                if (session.user_id._id == req.user._id) {
+                    sessionPrice.calculatePrice(session.started_on, session.stopped_on, session.zone_id.price, (price) => {
+                        res.json({
+                            info: "Price successfully calculated",
+                            success: true,
+                            data: price
+                        });
+                    });
+                } else {
+                    res.status(403);
+                    res.json({
+                        info: "Unauthorized to calculate price of given session",
+                        success: false
+                    });
+                }
+            } else {
+                res.json({
+                    info: "Session not found",
+                    success: false
+                });
+            }
+        });
+    } else {
+        res.status(403);
+        res.json({
+            info: "Unauthorized",
+            success: false
+        });
+    }
+
 });
 
 /* Create session */
