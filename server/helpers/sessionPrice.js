@@ -8,7 +8,7 @@ const sessionPrice = (() => {
         let data = {
             time: {
                 hoursParked: timeDifference,
-                minutesParked: timeDifference / 60
+                minutesParked: timeDifference * 60
             },
             price: {
                 'parkCosts': parkCosts,
