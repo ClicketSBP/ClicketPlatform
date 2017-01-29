@@ -74,13 +74,14 @@ router.get("/car/id/:id", authenticate, admin, (req, res) => {
 });
 
 /* Create car */
-router.post("/car", (req, res) => {
-    if (Object.keys(req.body).length !== 4 || bodyValidator(req.body.license_plate, req.body.name, req.body.default_car, req.body.user_id)) {
+router.post("/car", authenticate, loadUser, (req, res) => {
+    if (Object.keys(req.body).length !== 3 || bodyValidator(req.body.license_plate, req.body.name, req.body.default_car)) {
         res.json({
             info: "Please supply all required fields",
             success: false
         });
     } else {
+        req.body.user_id = req.user._id;
         Car.addCar(req.body, (err, car) => {
             if (err) {
                 res.json({
