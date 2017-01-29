@@ -188,6 +188,7 @@ User.addInvoiceAmount = (user, invoiceAmount, cb) => {
 };
 
 /* Update invoice amount */
+User.updateInvoiceAmount = (user, invoiceAmount, cb) => {
     //_.merge(user, body);
     user.invoice_amount = invoiceAmount;
     user.save((err) => {
