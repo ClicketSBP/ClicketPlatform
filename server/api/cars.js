@@ -75,26 +75,46 @@ router.get("/car/id/:id", authenticate, admin, (req, res) => {
 
 /* Create car */
 router.post("/car", authenticate, loadUser, (req, res) => {
-    if (Object.keys(req.body).length !== 3 || bodyValidator(req.body.license_plate, req.body.name, req.body.default_car)) {
-        res.json({
-            info: "Please supply all required fields",
-            success: false
-        });
-    } else {
-        req.body.user_id = req.user._id;
-        Car.addCar(req.body, (err, car) => {
-            if (err) {
-                res.json({
-                    info: "Error during creating car: license plate could be already in use or there might be some validation errors",
-                    success: false,
-                    error: err.errmsg
-                });
-            } else {
-                res.json({
-                    info: "Car created successfully",
-                    success: true
-                });
+    if (req.granted) {
+        if (Object.keys(req.body).length !== 3 || bodyValidator(req.body.license_plate, req.body.name, req.body.default_car)) {
+            res.json({
+                info: "Please supply all required fields",
+                success: false
+            });
+        } else {
+            req.body.user_id = req.user._id;
+
+            if (req.body.default_car) {
+                Car.setAllCarsDefault(req.user._id, false, (err, cars) => {
+                    if (err) {
+                        res.json({
+                            info: "Error during resetting default cars",
+                            success: false,
+                            error: err.errmsg
+                        });
+                    }
+                })
             }
+            Car.addCar(req.body, (err, car) => {
+                if (err) {
+                    res.json({
+                        info: "Error during creating car: license plate could be already in use or there might be some validation errors",
+                        success: false,
+                        error: err.errmsg
+                    });
+                } else {
+                    res.json({
+                        info: "Car created successfully",
+                        success: true
+                    });
+                }
+            });
+        }
+    } else {
+        res.status(403);
+        res.json({
+            info: "Unauthorized",
+            success: false
         });
     }
 });
