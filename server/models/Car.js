@@ -50,6 +50,25 @@ Car.getCarsByUserId = (userid, cb) => {
         });
 };
 
+/* Read (get default car by user id) */
+Car.getDefaultCarByUserId = (userid, cb) => {
+    Car.findOne({
+            user_id: userid,
+            default_car: true
+        })
+        .sort({
+            default_car: -1,
+            name: 1
+        })
+        .exec((err, docs) => {
+            if (err) {
+                cb(err, null);
+            } else {
+                cb(null, docs);
+            }
+        });
+};
+
 /* Read (one car) */
 Car.getCarById = (id, cb) => {
     Car.findById(id)
@@ -70,6 +89,34 @@ Car.updateCar = (car, body, cb) => {
             cb(err);
         } else {
             cb(null);
+        }
+    });
+};
+
+/* Update car default */
+Car.updateCarDefault = (car, default_car, cb) => {
+    //_.merge(car, body);
+    car.default_car = default_car;
+    car.save((err) => {
+        if (err) {
+            cb(err);
+        } else {
+            cb(null);
+        }
+    });
+};
+
+Car.setAllCarsDefault = (user_id, default_cars, cb) => {
+    Car.getCarsByUserId(user_id, (err, cars) => {
+        if (err) {
+            cb(err, null);
+        } else {
+            cars.forEach((car) => {
+                Car.updateCarDefault(car, default_cars, (err) => {
+                    cb(err, null);
+                });
+            });
+            cb(null, cars);
         }
     });
 };
