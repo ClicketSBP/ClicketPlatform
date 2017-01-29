@@ -9,7 +9,7 @@ const express = require('express'),
 
 let router = express.Router();
 
-/* Read (all users) */
+/* Read (all users) - ADMIN ONLY */
 router.get("/users/all", authenticate, admin, (req, res) => {
     if (req.granted) {
         User.getUsers((err, users) => {
@@ -368,7 +368,7 @@ router.post("/users/update/password", authenticate, (req, res) => {
 });
 
 /* Update invoice amount */
-router.put("/users/update/invoice_amount", authenticate, (req, res) => {
+router.put("/users/update/invoice_amount", authenticate, loadUser, (req, res) => {
     if (req.granted) {
         if (Object.keys(req.body).length !== 1 || bodyValidator(req.body.invoice_amount)) {
             res.json({
@@ -376,33 +376,52 @@ router.put("/users/update/invoice_amount", authenticate, (req, res) => {
                 success: false
             });
         } else {
-            User.getUserByEmail(req.jwtUser.email, (err, user) => {
+            User.updateInvoiceAmount(req.user, req.body.invoice_amount, (err) => {
                 if (err) {
                     res.json({
-                        info: "Error during reading user",
+                        info: "Error during updating invoice amount",
                         success: false,
-                        error: err.errmsg
-                    });
-                } else if (user) {
-                    user.invoice_amount += req.body.invoice_amount;
-                    User.updateUser(user, req.body, (err) => {
-                        if (err) {
-                            res.json({
-                                info: "Error while updating invoice amount" + err,
-                                success: false,
-                                error: err.errmsg
-                            });
-                        } else {
-                            res.json({
-                                info: "Added successfully " + req.body.invoice_amount + "euro to the account.",
-                                success: true
-                            });
-                        }
+                        error: err
                     });
                 } else {
                     res.json({
-                        info: "User not found",
+                        info: "Successfully updated the invoice amount to: " + parseFloat(req.body.invoice_amount).toFixed(2) + " euro.",
+                        success: true,
+                        invoice_amount: parseFloat(req.body.invoice_amount).toFixed(2)
+                    });
+                }
+            });
+        }
+    } else {
+        res.status(403);
+        res.json({
+            info: "Unauthorized",
+            success: false
+        });
+    }
+});
+
+/* Add invoice amount */
+router.put("/users/add/invoice_amount", authenticate, loadUser, (req, res) => {
+    if (req.granted) {
+        if (Object.keys(req.body).length !== 1 || bodyValidator(req.body.invoice_amount)) {
+            res.json({
+                info: "Please supply all required fields",
+                success: false
+            });
+        } else {
+            User.addInvoiceAmount(req.user, req.body.invoice_amount, (err) => {
+                if (err) {
+                    res.json({
+                        info: "Error during updating invoice amount",
                         success: false,
+                        error: err
+                    });
+                } else {
+                    res.json({
+                        info: "Successfully added the invoice amount with: " + parseFloat(req.body.invoice_amount).toFixed(2) + " euro.",
+                        success: true,
+                        invoice_amount: (parseFloat(req.user.invoice_amount) + parseFloat(req.body.invoice_amount)).toFixed(2)
                     });
                 }
             });

@@ -177,7 +177,7 @@ User.updateUser = (user, body, cb) => {
 /* Add invoice amount */
 User.addInvoiceAmount = (user, invoiceAmount, cb) => {
     //_.merge(user, body);
-    user.invoice_amount += invoiceAmount;
+    user.invoice_amount += parseFloat(invoiceAmount);
     user.save((err) => {
         if (err) {
             cb(err);

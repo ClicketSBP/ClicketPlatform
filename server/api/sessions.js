@@ -267,7 +267,7 @@ router.post("/session", authenticate, loadUser, zoneCalculator, (req, res) => {
 /* Update */
 router.put("/session", authenticate, loadUser, (req, res) => {
     if (req.granted) {
-        if (Object.keys(req.body).length !== 7 || bodyValidator(req.body.id, req.body.car_id, req.body.lat, req.body.lng, req.body.user_id, req.body.active, req.body.stopped_on)) {
+        if (Object.keys(req.body).length !== 5 || bodyValidator(req.body.id, req.body.car_id, req.body.lat, req.body.lng, req.body.user_id)) {
             res.json({
                 info: "Please supply all required fields",
                 success: false

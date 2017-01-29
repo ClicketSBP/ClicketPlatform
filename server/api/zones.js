@@ -74,45 +74,6 @@ router.get("/zone/id/:id", authenticate, admin, (req, res) => {
     }
 });
 
-/* Get zone by street and city */
-router.post("/zone/data", authenticate, loadUser, (req, res) => {
-    if (req.granted) {
-        if (Object.keys(req.body).length !== 2 || bodyValidator(req.body.street, req.body.city)) {
-            res.json({
-                info: "Please supply all required fields",
-                success: false
-            });
-        } else {
-            ZoneData.getZoneByStreetCity(req.body.street, req.body.city, (err, zone) => {
-                if (err) {
-                    res.json({
-                        info: "Error during retrieving zone",
-                        success: false,
-                        error: err.errmsg
-                    });
-                } else if (zone) {
-                    res.json({
-                        info: "Zone successfully retrieved",
-                        success: true,
-                        data: zone
-                    });
-                } else {
-                    res.json({
-                        info: "No zone found",
-                        success: false
-                    });
-                }
-            });
-        }
-    } else {
-        res.status(403);
-        res.json({
-            info: "Unauthorized",
-            success: false
-        });
-    }
-});
-
 /* Create zone - ADMIN ONLY */
 router.post("/zone", authenticate, admin, (req, res) => {
     if (Object.keys(req.body).length !== 2 || bodyValidator(req.body.name, req.body.price)) {
