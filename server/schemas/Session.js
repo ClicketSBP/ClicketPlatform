@@ -45,6 +45,11 @@ const sessionSchema = new mongoose.Schema({
         type: Number,
         required: true,
         ref: 'Zone'
+    },
+    street: {
+        type: String,
+        required: true,
+        trim: true
     }
 }, {
     _id: false,

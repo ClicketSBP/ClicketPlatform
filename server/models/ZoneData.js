@@ -76,8 +76,8 @@ ZoneData.getZoneByStreetCity = (street, city, cb) => {
         });
 };
 
-/* Read (one zoneData) */
-ZoneData.getZoneDataById = (id, cb) => {
+/* Read (get zonedata by zone id) */
+ZoneData.getZoneDataByZoneId = (id, cb) => {
     ZoneData.findById(id)
         .exec((err, docs) => {
             if (err) {

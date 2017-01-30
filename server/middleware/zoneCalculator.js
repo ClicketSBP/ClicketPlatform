@@ -13,6 +13,7 @@ const zoneCalculator = (req, res, next) => {
         zoneData.getZoneByStreetCity(result[0].streetName, result[0].city, function(err, zone) {
             if (zone) {
                 req.zone = zone.zone_id;
+                req.street = result[0].streetName;
             } else {
                 req.zone = -1;
             }
