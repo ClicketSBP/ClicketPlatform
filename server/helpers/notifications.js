@@ -52,7 +52,7 @@ const notifications = (() => {
                 "%ZONE%": session.zone_id.name,
                 "%STARTED_ON%": moment(session.started_on).format("DD/MM/YY HH:mm:ss"),
                 "%LICENSE_PLATE%": session.car_id.license_plate,
-                "%PRICE_PER_HOUR%": session.zone_id.price
+                "%PRICE_PER_HOUR%": parseFloat(session.zone_id.price).toFixed(2)
             };
 
             utility.replaceAll(placeholders, customerResponse, (res) => {
