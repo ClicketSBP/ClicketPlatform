@@ -92,11 +92,30 @@ const notifications = (() => {
         }, config.customerInterval);
     };
 
+    /* Session notify on zone not found */
+    const notifyZoneNotFound = (user, cb) => {
+        let customerResponse = config.notifications.responses.customer.zone_not_found;
+        let placeholders = {
+            "%CUSTOMER_NAME%": user.firstname
+        };
+
+        utility.replaceAll(placeholders, customerResponse, (res) => {
+            twilio.sendSms(user.phone, res, (err, data) => {
+                if (err) {
+                    cb(err, null);
+                } else {
+                    cb(null, data);
+                }
+            });
+        });
+    };
+
     return {
         notifyStartProvider: notifyStartProvider,
         notifyStopProvider: notifyStopProvider,
         notifyStartCustomer: notifyStartCustomer,
-        notifyStopCustomer: notifyStopCustomer
+        notifyStopCustomer: notifyStopCustomer,
+        notifyZoneNotFound: notifyZoneNotFound
     };
 })();
 

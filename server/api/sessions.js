@@ -280,10 +280,20 @@ router.post("/session", authenticate, loadUser, zoneCalculator, (req, res) => {
             });
         } else {
             if (req.zone == -1) {
-                res.status(404);
-                res.json({
-                    info: "Zone not found",
-                    success: false
+                notifications.notifyZoneNotFound(req.user, (err, customerRes) => {
+                    if (err) {
+                        res.json({
+                            info: "Error during notifying customer: " + req.user.phone,
+                            success: false,
+                            error: err
+                        });
+                    } else {
+                        res.status(404);
+                        res.json({
+                            info: "Zone not found",
+                            success: false
+                        });
+                    }
                 });
             } else {
                 req.body.zone_id = req.zone._id;
