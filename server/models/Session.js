@@ -88,6 +88,22 @@ Session.getRecentSessionsByUserId = (userid, amount, cb) => {
         });
 };
 
+/* Read (get active session) */
+Session.getActiveSession = (userid, cb) => {
+    Session.findOne({
+            user_id: userid,
+            active: true
+        })
+        .populate(populateSchema)
+        .exec((err, docs) => {
+            if (err) {
+                cb(err, null);
+            } else {
+                cb(null, docs);
+            }
+        });
+};
+
 /* Read (get all sessions by car id) */
 Session.getSessionsByCarId = (carId, cb) => {
     Session.find({

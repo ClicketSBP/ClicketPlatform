@@ -46,6 +46,38 @@ router.get("/sessions/all", authenticate, loadUser, (req, res) => {
     }
 });
 
+/* Get active session user_id via token */
+router.get("/session/active", authenticate, loadUser, (req, res) => {
+    if (req.granted) {
+        Session.getActiveSession(req.user._id, (err, session) => {
+            if (err) {
+                res.json({
+                    info: "Error during retrieving active session",
+                    success: false,
+                    error: err.errmsg
+                });
+            } else if (session) {
+                res.json({
+                    info: "Active session successfully retrieved",
+                    success: true,
+                    data: session
+                });
+            } else {
+                res.json({
+                    info: "Session not found",
+                    success: false
+                });
+            }
+        });
+    } else {
+        res.status(403);
+        res.json({
+            info: "Unauthorized",
+            success: false
+        });
+    }
+});
+
 /* Get recent sessions through user_id via token */
 router.post("/sessions/recent", authenticate, loadUser, (req, res) => {
     if (req.granted) {
