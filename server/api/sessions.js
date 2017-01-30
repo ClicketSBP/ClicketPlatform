@@ -9,7 +9,8 @@ const express = require('express'),
     Session = require('../models/Session'),
     User = require('../models/User'),
     sessionPrice = require('../helpers/sessionPrice'),
-    config = require('../../config/clicket.config');
+    config = require('../../config/clicket.config'),
+    notifications = require('../helpers/notifications');
 
 let router = express.Router();
 
@@ -278,23 +279,51 @@ router.post("/session", authenticate, loadUser, zoneCalculator, (req, res) => {
                 success: false
             });
         } else {
-            req.body.zone_id = req.zone._id;
-            req.body.user_id = req.user._id;
+            if (req.zone == -1) {
+                res.status(404);
+                res.json({
+                    info: "Zone not found",
+                    success: false
+                });
+            } else {
+                req.body.zone_id = req.zone._id;
+                req.body.user_id = req.user._id;
 
-            Session.addSession(req.body, (err, session) => {
-                if (err) {
-                    res.json({
-                        info: "Error during creating session: there might be some validation errors",
-                        success: false,
-                        error: err.errmsg
-                    });
-                } else {
-                    res.json({
-                        info: "Session created successfully",
-                        success: true
-                    });
-                }
-            });
+                Session.addSession(req.body, (err, session) => {
+                    if (err) {
+                        res.json({
+                            info: "Error during creating session: there might be some validation errors",
+                            success: false,
+                            error: err.errmsg
+                        });
+                    } else {
+                        notifications.notifyStartProvider(session, (err, providerRes) => {
+                            if (err) {
+                                res.json({
+                                    info: "Error during notifying provider: " + config.zoneProviders.devEnv,
+                                    success: false,
+                                    error: err
+                                });
+                            } else {
+                                notifications.notifyStartCustomer(session, (err, customerRes) => {
+                                    if (err) {
+                                        res.json({
+                                            info: "Error during notifying customer: " + session.user_id.phone,
+                                            success: false,
+                                            error: err
+                                        });
+                                    }
+                                });
+                            }
+                        });
+                        res.json({
+                            info: "Session created successfully",
+                            success: true,
+                            data: session
+                        });
+                    }
+                });
+            }
         }
     } else {
         res.status(403);
@@ -393,6 +422,25 @@ router.post("/session/active", authenticate, loadUser, (req, res) => {
                                     });
                                 } else {
                                     sessionPrice.calculatePrice(session, (data) => {
+                                        notifications.notifyStopProvider(session, (err, providerData) => {
+                                            if (err) {
+                                                res.json({
+                                                    info: "Error during notifying provider: " + config.zoneProviders.devEnv,
+                                                    success: false,
+                                                    error: err
+                                                });
+                                            } else {
+                                                notifications.notifyStopCustomer(session, data, (err, customerData) => {
+                                                    if (err) {
+                                                        res.json({
+                                                            info: "Error during notifying customer: " + session.user_id.phone,
+                                                            success: false,
+                                                            error: err
+                                                        });
+                                                    }
+                                                });
+                                            }
+                                        });
                                         User.addInvoiceAmount(session.user_id, data.price.total, (err) => {
                                             if (err) {
                                                 res.json({
@@ -400,13 +448,17 @@ router.post("/session/active", authenticate, loadUser, (req, res) => {
                                                     success: false,
                                                     error: err
                                                 });
+                                            } else {
+                                                res.json({
+                                                    info: "Session active updated successfully",
+                                                    success: true,
+                                                    data: {
+                                                        session: session,
+                                                        info: data
+                                                    }
+                                                });
                                             }
                                         });
-                                    });
-
-                                    res.json({
-                                        info: "Session active updated successfully",
-                                        success: true
                                     });
                                 }
                             });
@@ -466,4 +518,4 @@ router.delete("/session/:id", authenticate, admin, (req, res) => {
     }
 });
 
-module.exports = router;
+module.exports = router;;

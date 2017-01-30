@@ -18,11 +18,17 @@ const populateSchema = [{
 /* Create */
 Session.addSession = (body, cb) => {
     let session = new Session(body);
-    session.save((err) => {
+    session.save((err, docs) => {
         if (err) {
-            cb(err);
+            cb(err, null);
         } else {
-            cb(null);
+            Session.getSessionById(docs.id, (err, session) => {
+                if (err) {
+                    cb(err, null);
+                } else if (session) {
+                    cb(null, session);
+                }
+            });
         }
     });
 };

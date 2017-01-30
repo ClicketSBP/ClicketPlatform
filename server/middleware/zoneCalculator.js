@@ -10,10 +10,11 @@ const zoneCalculator = (req, res, next) => {
         lat: parseFloat(req.body.lat),
         lon: parseFloat(req.body.lng)
     }, function(err, result) {
-        console.log(result);
         zoneData.getZoneByStreetCity(result[0].streetName, result[0].city, function(err, zone) {
             if (zone) {
                 req.zone = zone.zone_id;
+            } else {
+                req.zone = -1;
             }
             next();
         });
