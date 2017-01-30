@@ -63,10 +63,19 @@ router.post("/sessions/recent", authenticate, loadUser, (req, res) => {
                         error: err.errmsg
                     });
                 } else if (sessions) {
+                    let sessionsPrice = [];
+                    sessions.forEach((ses) => {
+                        sessionPrice.calculatePrice(ses, (sesPrice) => {
+                            sessionsPrice.push({
+                                session: ses,
+                                info: sesPrice
+                            });
+                        });
+                    });
                     res.json({
                         info: "Successfully retrieved recent sessions",
                         success: true,
-                        data: sessions
+                        data: sessionsPrice
                     });
                 } else {
                     res.json({
@@ -528,4 +537,4 @@ router.delete("/session/:id", authenticate, admin, (req, res) => {
     }
 });
 
-module.exports = router;;
+module.exports = router;

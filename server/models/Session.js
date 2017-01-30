@@ -71,11 +71,11 @@ Session.getSessionsByUserId = (userid, cb) => {
 /* Read (get recent sessions) */
 Session.getRecentSessionsByUserId = (userid, amount, cb) => {
     Session.find({
-            user_id: userid
+            user_id: userid,
+            active: false
         })
         .populate(populateSchema)
         .sort({
-            active: -1,
             started_on: -1
         })
         .limit(amount)

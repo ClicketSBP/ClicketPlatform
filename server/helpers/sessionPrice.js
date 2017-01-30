@@ -13,7 +13,7 @@ const sessionPrice = (() => {
                 'transactionCosts': 0,
                 'total': 0
             }
-        }
+        };
 
         if (!ses.active) {
             let timeDifference = moment(ses.stopped_on).diff(moment(ses.started_on), 'hours', true);
@@ -28,7 +28,7 @@ const sessionPrice = (() => {
                     'transactionCosts': config.prices.costsPerTransaction,
                     'total': parkCosts + config.prices.costsPerTransaction
                 }
-            }
+            };
         }
 
         cb(data);
