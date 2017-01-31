@@ -4,7 +4,8 @@ const http = require('http'),
     https = require('https'),
     path = require('path'),
     fs = require('fs'),
-    passport = require('passport');
+    passport = require('passport'),
+    socketio = require('../helpers/socket');
 
 /* Normalize a port into a number, string, or false */
 
@@ -93,3 +94,6 @@ server = http.createServer(app);
 server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
+
+/* Socket.io please work, biesh */
+socketio.init(server);

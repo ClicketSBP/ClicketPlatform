@@ -350,7 +350,7 @@ router.post("/session", authenticate, loadUser, zoneCalculator, (req, res) => {
                             error: err.errmsg
                         });
                     } else {
-                        notifications.notifyStartProvider(session, (err, providerRes) => {
+                        /*notifications.notifyStartProvider(session, (err, providerRes) => {
                             if (err) {
                                 res.json({
                                     info: "Error during notifying provider: " + config.zoneProviders.devEnv,
@@ -368,7 +368,13 @@ router.post("/session", authenticate, loadUser, zoneCalculator, (req, res) => {
                                     }
                                 });
                             }
-                        });
+                        });*/
+                        let body = {
+                            session: session,
+                            zone: req.zone,
+                            street: req.body.street
+                        };
+                        Session.emit('start', body);
                         res.json({
                             info: "Session created successfully",
                             success: true,
@@ -502,6 +508,11 @@ router.post("/session/active", authenticate, loadUser, (req, res) => {
                                                     error: err
                                                 });
                                             } else {
+                                                let body = {
+                                                    session: session,
+                                                    data: data
+                                                };
+                                                Session.emit('stop', body);
                                                 res.json({
                                                     info: "Session active updated successfully",
                                                     success: true,
@@ -570,5 +581,7 @@ router.delete("/session/:id", authenticate, admin, (req, res) => {
         });
     }
 });
+
+module.exports = router;
 
 module.exports = router;

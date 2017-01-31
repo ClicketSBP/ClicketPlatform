@@ -30,6 +30,7 @@ app.use(cookieParser());
 
 app.use('/config', express.static(path.join(__dirname, '../config')));
 app.use('/lib', express.static(path.join(__dirname, '../node_modules')));
+app.use('/js', express.static(path.join(__dirname, 'views/js')));
 
 /* Passport */
 app.use(passport.initialize());

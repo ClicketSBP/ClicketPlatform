@@ -4,11 +4,13 @@
 <head>
   	<meta charset="utf-8">
 
-  	<title>Backend Clicket.be</title>
+  	<title>Clicket.be</title>
   	<meta name="description" content="Clicket Backend">
   	<meta name="author" content="Niels Bril, Jeffrey Descan">
 
   	<!--<link rel="stylesheet" href="css/styles.css?v=1.0">-->
+	<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+	<script src="/socket.io/socket.io.js"></script>
 
   	<style>
 		html {
@@ -24,29 +26,219 @@
 		}
 
 		main {
-			text-align: center;
 			display: flex;
 		  	align-items: center;
 		  	justify-content: center;
 			height: 100%;
 		}
 
-		h1, h3 {
-			text-transform: uppercase;
+		/* feed item */
+		article {
+			margin: 10px;
+			padding: 10px;
+			border-radius: 3px;
 		}
 
-		h1 {
-			font-size: 2em;
+		article.start {
+			background-color: #81C784;
+			border: 1px solid #9bd99e;
+			background-position-x: 106%;
+			background-position-y: 175%;
+			background-image: url(https://www.clicket.be/images/logo.png);
+			background-size: 25%;
+			background-repeat: no-repeat;
+		}
+
+		article.stop {
+			background-color: #e57373;
+			border: 1px solid #f5aeae;
+		}
+
+		article > h2 > span {
+			font-size: 0.73em;
+			margin-left: 20px;
+		}
+
+		article > h2 {
+			margin-top: 0.2em;
+			margin-bottom: 0.5em;
+		}
+
+		article > p {
+			margin: 0;
+		}
+
+		#map {
+	        height: 100%;
+	        width: 75%;
+        }
+
+		#feed {
+			width: 25%;
+			height: 100%;
+			background-color: #31353F;
+			background-image: url(https://www.clicket.be/images/logo.png);
+			background-position-x: 50%;
+			background-position-y: 50%;
+			overflow-y: auto;
+			background-repeat: no-repeat;
 		}
   	</style>
 </head>
 
 <body>
 	<main>
-		<section>
-			<h1>Clicket backend</h1>
-			<h3>The easy parking payment solution</h3>
+		<div id="map"></div>
+		<section id="feed">
+
 		</section>
 	</main>
+
+
+	<script type="text/javascript">
+		var client = {};
+
+		client.feed = (function() {
+			var root = this;
+			var socket;
+			var _markers = [];
+			var _objects = [];
+			var _infoWindow = null;
+			var _map;
+			var _bounds = null;
+			var _markerCluster = null;
+
+
+			var initializeSockets = function() {
+				console.log('Sockets initialized');
+
+				var connection = location.protocol + "//" + location.hostname + ":" + location.port;
+				socket = io.connect(connection);
+
+				socket.on('connect', function() {
+					console.log('Socket connected on client');
+				});
+
+				socket.on('start', function(body) {
+					_objects = [];
+					_bounds = null;
+					_objects.push(body);
+
+					setMarkers(_map, body);
+					addFeedItem(body, 'start');
+				});
+
+				socket.on('stop', function(body) {
+					// Remove specific marker
+					// Held -> Niels
+					var index = _markers.findIndex(ses => ses.session_id === body.session._id);
+					_markers[index].setMap(null);
+					_markers.splice(index, 1);
+					addFeedItem(body, 'stop');
+
+					if(_markers) {
+						_bounds.extend(marker.getPosition());
+						_map.fitBounds(_bounds);
+						_map.panToBounds(_bounds);
+						if (map.getZoom() > 19) map.setZoom(19);
+					}
+				});
+			};
+
+			var addFeedItem = function(data, status) {
+				console.log(data);
+				var contentInfo = '<article class="' + status + '">' +
+										'<h2>' + data.session.car_id.name + ' <span>' + data.session.car_id.license_plate + '</span></h2>' +
+										'<p><strong>Started on:</strong> ' + moment(data.session.started_on).format('DD/MM/YYYY HH:mm:ss') + '</p>' +
+										(status == 'stop' ? '<p><strong>Stopped on:</strong> ' + moment(data.session.stopped_on).format('DD/MM/YYYY HH:mm:ss') + '</p>' : "") +
+										'<p><strong>Street:</strong> ' + data.session.street + '</p>' +
+										'<p><strong>Zone:</strong> ' + (status == 'start' ? data.zone.name : data.session.zone_id.name) + '</p>' +
+										'<p><strong>Price per hour:</strong> €' + (status == 'start' ? data.zone.price : data.session.zone_id.price) + '</p>' +
+										(status == 'stop' ? '<p><strong>Total costs:</strong> €' + parseFloat(data.data.price.total).toFixed(2) + '</p>' : "") +
+										(status == 'stop' ? '<p><strong>Minutes parked: </strong>' + parseFloat(data.data.time.minutesParked).toFixed(0) + 'min.</p>' : "") +
+								  '</article>';
+				$("#feed").append(contentInfo);
+				$("#feed").animate({ scrollTop: $('#feed').prop("scrollHeight")}, 1000);
+			}
+
+			var initMap = function() {
+				var rdr = {lat: 50.822599, lng: 3.272908};
+				_map = new google.maps.Map(document.getElementById('map'), {
+					zoom: 15,
+					center: rdr
+				});
+
+				_map.addListener('click', function() {
+			        if(_infoWindow) {
+						_infoWindow.close();
+						_infoWindow = null;
+					}
+		        });
+
+				_markerCluster = new MarkerClusterer(_map, _markers, {
+					imagePath: "https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m",
+					gridSize: 300, maxZoom: 24
+				});
+			};
+
+			var setMarkers = function(map, locations) {
+				var loc = locations;
+				console.log(loc);
+				var myLatLng = new google.maps.LatLng(loc.session.lat, loc.session.lng);
+				var marker = new google.maps.Marker({
+					position: myLatLng,
+					map: map,
+					title: loc.session.street,
+					animation: google.maps.Animation.DROP,
+					session_id: loc.session._id
+				});
+				var contentInfo = "<h3>" + loc.session.car_id.name + "</h3>" +
+								"<h4>" + loc.session.car_id.license_plate + "</h4>" +
+								"<p><strong>Started on: </strong> " + moment(loc.session.started_on).format("DD/MM/YYYY HH:mm:ss") + "</p>" +
+								"<p><strong>Street: </strong> " + loc.session.street + "</p>" +
+								"<p><strong>Zone: </strong> " + loc.session.zone_id.name + "</p>"
+								"<p><strong>Price per hour: </strong> " + loc.session.zone_id.price + "</p>";
+				_bounds = new google.maps.LatLngBounds();
+				marker.addListener('click', function() {
+					if (_infoWindow) {
+						_infoWindow.close();
+						_infoWindow = null;
+					}
+					_infoWindow = new google.maps.InfoWindow({
+						content: contentInfo
+				   	});
+		        	_infoWindow.open(map, marker);
+		        });
+
+				_markers.push(marker);
+				_markerCluster.addMarker(marker);
+
+				if(_markers) {
+					_bounds.extend(marker.getPosition());
+					_map.fitBounds(_bounds);
+					_map.panToBounds(_bounds);
+					if (map.getZoom() > 19) map.setZoom(19);
+				}
+			}
+
+			var start = $(document).ready(function() {
+				initMap();
+				initializeSockets();
+			});
+
+			return {
+				start: start,
+				markers: _markers,
+				initMap: initMap,
+				addFeedItem: addFeedItem,
+				_bounds: _bounds
+			};
+		})();
+
+		client.feed.start;
+	</script>
+	<script src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js"></script>
+	<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAjompy5SvlCy8IRs5xAMYYt_YQ4vdJuUg&callback=client.feed.initMap"></script>
+	<script src="js/moment.js"></script>
 </body>
 </html>
